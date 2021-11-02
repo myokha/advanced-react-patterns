@@ -3,6 +3,7 @@
 
 import * as React from 'react'
 import {Switch} from '../switch'
+import {over} from 'lodash'
 
 function useToggle() {
   const [on, setOn] = React.useState(false)
@@ -18,8 +19,7 @@ function useToggle() {
       return {
         'aria-pressed': on,
         onClick: () => {
-          onClick?.()
-          toggle()
+          over([onClick, toggle])()
         },
         ...props,
       }

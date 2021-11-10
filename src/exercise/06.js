@@ -5,6 +5,8 @@ import * as React from 'react'
 import {Switch} from '../switch'
 import warning from 'warning'
 
+const isProduction = process.env.NODE_ENV === 'production'
+
 const callAll =
   (...fns) =>
   (...args) =>
@@ -24,6 +26,8 @@ function useControlledSwitchWarning(
   const {current: wasControlled} = React.useRef(isControlled)
 
   React.useEffect(() => {
+    if (isProduction) return
+
     warning(
       !(isControlled && !wasControlled),
       `\`${componentName}\` is changing from uncontrolled to be controlled. Components should not switch from uncontrolled to controlled (or vice versa). Decide between using a controlled or uncontrolled \`${componentName}\` for the lifetime of the component. Check the \`${controlPropName}\` prop.`,
@@ -47,6 +51,8 @@ function useOnChangeReadOnlyWarning(
 ) {
   const isControlled = controlPropValue != null
   React.useEffect(() => {
+    if (isProduction) return
+
     warning(
       !(isControlled && !hasOnChange && !readOnly),
       `A \`${controlPropName}\` prop was provided to \`${componentName}\` without an \`${onChangeProp}\` handler. This will result in a read-only \`${controlPropName}\` value. If you want it to be mutable, use \`${initialValueProp}\`. Otherwise, set either \`${onChangeProp}\` or \`${readOnlyProp}\`.`,

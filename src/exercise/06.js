@@ -35,6 +35,34 @@ function useControlledSwitchWarning(
   }, [componentName, controlPropName, isControlled, wasControlled])
 }
 
+function useOnChangeReadOnlyWarning(
+  controlPropValue,
+  controlPropName,
+  componentName,
+  hasOnChange,
+  readOnly,
+  onChangeProp,
+  initialValueProp,
+  readOnlyProp,
+) {
+  const isControlled = controlPropValue != null
+  React.useEffect(() => {
+    warning(
+      !(isControlled && !hasOnChange && !readOnly),
+      `A \`${controlPropName}\` prop was provided to \`${componentName}\` without an \`${onChangeProp}\` handler. This will result in a read-only \`${controlPropName}\` value. If you want it to be mutable, use \`${initialValueProp}\`. Otherwise, set either \`${onChangeProp}\` or \`${readOnlyProp}\`.`,
+    )
+  }, [
+    componentName,
+    controlPropName,
+    hasOnChange,
+    initialValueProp,
+    isControlled,
+    onChangeProp,
+    readOnly,
+    readOnlyProp,
+  ])
+}
+
 function toggleReducer(state, {type, initialState}) {
   switch (type) {
     case actionTypes.toggle: {
@@ -64,16 +92,18 @@ function useToggle({
   // 🐨 determine whether on is controlled and assign that to `onIsControlled`
   // 💰 `controlledOn != null`
   const onIsControlled = controlledOn != null
-  const hasOnChange = Boolean(onChange)
 
   useControlledSwitchWarning(controlledOn, 'on', 'useToggle')
-
-  React.useEffect(() => {
-    warning(
-      !(onIsControlled && !hasOnChange && !readOnly),
-      `An \`on\` prop was provided to useToggle without an \`onChange\` handler. This will render a read-only toggle. If you want it to be mutable, use \`initialOn\`. Otherwise, set either \`onChange\` or \`readOnly\`.`,
-    )
-  }, [hasOnChange, onIsControlled, readOnly])
+  useOnChangeReadOnlyWarning(
+    controlledOn,
+    'on',
+    'useToggle',
+    Boolean(onChange),
+    readOnly,
+    'onChange',
+    'initialOn',
+    'readOnly',
+  )
 
   // warning(controlledOn && !onIsControlled, 'You do not pass `on` anymore')
   // warning(!onIsControlled && controlledOn, 'You passed `on` later')
